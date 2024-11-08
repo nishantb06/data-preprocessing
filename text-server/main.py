@@ -23,15 +23,9 @@ app.add_middleware(
 class TextRequest(BaseModel):
     text: str
 
-def synonym_replacement(sentence, n=3):  # Default to replacing 3 words
+
+def synonym_replacement(sentence, n):
     words = sentence.split()
-    # Only try to replace if we have words
-    if not words:
-        return sentence
-        
-    # Limit n to the number of words available
-    n = min(n, len(words))
-    
     for _ in range(n):
         word_to_replace = random.choice(words)
         synonyms = wordnet.synsets(word_to_replace)
@@ -46,14 +40,7 @@ async def convert_to_small_case(request: TextRequest):
 
 @app.post("/synonyms")
 async def get_synonyms(request: TextRequest):
-    # Split text into sentences and process each one
-    sentences = request.text.split('.')
-    processed_sentences = [synonym_replacement(sentence) for sentence in sentences]
-    # Rejoin sentences with period and space
-    result = '. '.join(processed_sentences)
-    # Add period at the end if the original text ended with one
-    if request.text.strip().endswith('.'):
-        result += '.'
+    result = synonym_replacement(request.text, 5)
     return {"result": result}
 
 if __name__ == "__main__":
