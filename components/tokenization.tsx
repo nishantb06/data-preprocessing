@@ -1,24 +1,38 @@
 import { Button } from "./ui/button"
 import { Textarea } from "./ui/text-area"
-import { TextareaHTMLAttributes } from "react"
+import { TextareaHTMLAttributes, useState } from "react"
 
 interface TextareaWithButtonProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
-  onSubmit?: () => void;
+  onSubmit?: (text: string) => void;
   buttonText?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+  readOnly?: boolean;
 }
 
 export function TextareaWithButton({ 
   onSubmit, 
   buttonText = "Send message",
+  value,
+  onChange,
+  readOnly = false,
   ...textareaProps 
 }: TextareaWithButtonProps) {
+  const handleSubmit = () => {
+    if (onSubmit && value) {
+      onSubmit(value);
+    }
+  };
+
   return (
     <div className="grid w-full max-w-3xl gap-2">
       <Textarea 
-        placeholder="Type your message here." 
+        value={value}
+        onChange={(e) => onChange?.(e.target.value)}
+        readOnly={readOnly}
         {...textareaProps}
       />
-      <Button onClick={onSubmit}>{buttonText}</Button>
+      <Button onClick={handleSubmit}>{buttonText}</Button>
     </div>
   )
 }
