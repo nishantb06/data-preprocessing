@@ -26,13 +26,20 @@ class TextRequest(BaseModel):
 
 def synonym_replacement(sentence, n):
     words = sentence.split()
+    replacements = {}  # Track original words and their replacements
+    
     for _ in range(n):
         word_to_replace = random.choice(words)
         synonyms = wordnet.synsets(word_to_replace)
         if synonyms:
             synonym = synonyms[0].lemmas()[0].name()
             words = [synonym if word == word_to_replace else word for word in words]
-    return ' '.join(words)
+            replacements[word_to_replace] = synonym
+    
+    return {
+        'text': ' '.join(words),
+        'replacements': replacements
+    }
 
 @app.post("/small-case")
 async def convert_to_small_case(request: TextRequest):
@@ -41,7 +48,7 @@ async def convert_to_small_case(request: TextRequest):
 @app.post("/synonyms")
 async def get_synonyms(request: TextRequest):
     result = synonym_replacement(request.text, 5)
-    return {"result": result}
+    return result
 
 if __name__ == "__main__":
     import uvicorn
